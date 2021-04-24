@@ -20,7 +20,7 @@ This includes selecting a strong key, storing the key in a safe & secure place
 sharing it with other parties through a secure channel (such as in-person or
 over a secure end-to-end encrypted communication system).
 
-Usage: vault --<command> [argument]
+Usage: vault --<command> [argument] ...
 
 Available commands are documented below, in order of decreasing precedence.
 This means that if both "--create <some vault>" and "--add <some file>" are
@@ -46,6 +46,11 @@ specified, then ONLY the create command will be executed.
 --decrypt <filename>
   If a file with the given name is stored in the vault, this decrypts the file
   and stores it in the current directory with its original name.
+
+--output <filename>
+  This option is used when decrypting a file to override the filename that the
+  decrypted file is saved to.
+  When specified with other commands, it does nothing.
 
 --remove <filename>
   Removes an encrypted file from the vault.
