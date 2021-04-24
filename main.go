@@ -102,5 +102,5 @@ func main() {
 		return
 	}
 
-  exitOnErr("expected command, use flag --help", nil, 1)
+	exitOnErr("expected command, use flag --help", nil, 1)
 }
