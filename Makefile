@@ -6,7 +6,11 @@ TST_FILES=test
 $(EXEC): $(SRCS)
 	$(GC) build
 
-.PHONY: clean
+.PHONY: clean tidy
+
+tidy:
+	go mod tidy
+	go fmt ./...
 
 clean:
 	rm -rf $(EXEC)      # remove executable
