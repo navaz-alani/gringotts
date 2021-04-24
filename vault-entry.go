@@ -13,6 +13,7 @@ type AESVaultEntry struct {
 	IV            []byte
 	Size          int64
 	Padding       int64
+	HMAC          []byte
 }
 
 func (e *AESVaultEntry) Name() string    { return e.Filename }

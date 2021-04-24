@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"os"
@@ -39,7 +41,9 @@ func (v *AESVault) encrypt(src, dst *os.File) (*AESVaultEntry, error) {
 	if paddingLen != 0 {
 		blockCount++
 	}
-
+	// initialize HMAC
+	mac := hmac.New(sha256.New, v.key)
+	// encrypt block by block
 	for i := int64(0); i < blockCount; i++ {
 		// read the file on disk into the src buffer
 		if n, err := io.ReadFull(src, srcBuff); err != nil {
@@ -54,9 +58,12 @@ func (v *AESVault) encrypt(src, dst *os.File) (*AESVaultEntry, error) {
 		}
 		// crypt the src buffer into the dst buffer
 		enc.CryptBlocks(dstBuff, srcBuff)
+		mac.Write(dstBuff) // write ciphertext to hmac
 		// write the dst buffer to dst file on disk
 		dst.WriteAt(dstBuff, i*int64(enc.BlockSize()))
 	}
+	// store the HMAC in the file entry
+	fileEntry.HMAC = mac.Sum(nil)
 	return fileEntry, nil
 }
 
@@ -74,11 +81,14 @@ func (v *AESVault) decrypt(srcEntry *AESVaultEntry, src, dst *os.File) error {
 	numBlocks := info.Size() / int64(dec.BlockSize())
 	srcBuff := make([]byte, dec.BlockSize())
 	dstBuff := make([]byte, dec.BlockSize())
+	// initialize HMAC
+	mac := hmac.New(sha256.New, v.key)
 	for i := int64(0); i < numBlocks; i++ {
 		// read data into the src buffer from the src file
 		if _, err := io.ReadFull(src, srcBuff); err != nil {
 			return fmt.Errorf("src file read error: %s", err.Error())
 		}
+		mac.Write(srcBuff) // write ciphertext to hmac
 		// decrypt the src buffer into the dst buffer
 		dec.CryptBlocks(dstBuff, srcBuff)
 		// remove padding from last block, if any
@@ -87,6 +97,11 @@ func (v *AESVault) decrypt(srcEntry *AESVaultEntry, src, dst *os.File) error {
 		}
 		// write dst buff to file
 		dst.WriteAt(dstBuff, i*int64(dec.BlockSize()))
+	}
+	// verify that the ciphertext hmac is the same as the one in the srcR
+	hmacTag := mac.Sum(nil)
+	if !hmac.Equal(hmacTag, srcEntry.HMAC) {
+		return fmt.Errorf("ciphertext auth fail - possibility of tampering")
 	}
 	return nil
 }
