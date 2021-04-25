@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-const usageMsg string = `vault is a virtual store for encrypted files.
+const usageMsg string = `Gringotts is a vault for encrypted files.
 It provides functionality for creating and managing a vault (adding, removing,
 decrypting files).
 
@@ -20,7 +20,7 @@ This includes selecting a strong key, storing the key in a safe & secure place
 sharing it with other parties through a secure channel (such as in-person or
 over a secure end-to-end encrypted communication system).
 
-Usage: vault --<command> [argument] ...
+Usage: gringotts --<command> [argument] ...
 
 Available commands are documented below, in order of decreasing precedence.
 This means that if both "--create <some vault>" and "--add <some file>" are

@@ -1,4 +1,4 @@
-# Vault
+# Gringotts
 
 This is a program which provides functionality for protecting files through
 symmetric key encryption.
@@ -12,10 +12,10 @@ Say a vault called `secrets` is created using the following invocations of the
 `vault` binary.
 ```bash
 # all of the following are equivalent invocations
-./vault --create secrets
-./vault --create=secrets
-./vault -create=secrets
-./vault -create secrets
+./gringotts --create secrets
+./gringotts --create=secrets
+./gringotts -create=secrets
+./gringotts -create secrets
 ```
 The program will prompt the user for a password and upon success, a directory
 called `vault` will appear in the current working directory.
@@ -33,7 +33,7 @@ __Encrypting a file__:
 To encrypt and store a file, say `secrets.txt`, in the `secrets` vault, the
 following command is used.
 ```bash
-./vault --vault=secrets --encrypt secrets.txt
+./gringotts --vault=secrets --encrypt secrets.txt
 ```
 The `--vault=secrets` specifies which vault is being operated on.
 Then `--encrypt secrets.txt` commands the program to encrypt the file called
@@ -50,7 +50,7 @@ __Decrypting a file__:
 To decrypt a file, say `secrets.txt`, which is in the vault `secrets`, the
 following command is used.
 ```bash
-./vault --vault=secrets --decrypt secrets.txt --output decrypted_secrets.txt
+./gringotts --vault=secrets --decrypt secrets.txt --output decrypted_secrets.txt
 ```
 This command searches for a file entry corresponding to `secrets.txt` in the
 `secrets` vault and decrypts the ciphertext version to a plaintext file called
@@ -64,7 +64,7 @@ __Removing a file__:
 To remove a file, say `secrets.txt`, from the `secrets` vault, the following
 command is used.
 ```bash
-./vault --vault=secrets --remove secrets.txt
+./gringotts --vault=secrets --remove secrets.txt
 ```
 This removes the file entry corresponding to `secrets.txt` from the `vault.bin`
 file and deletes the ciphertext file corresponding to it.

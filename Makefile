@@ -1,6 +1,6 @@
 GC=go
 SRCS=$(wildcard *.go)
-EXEC=vault
+EXEC=gringotts
 TST_FILES=test
 
 $(EXEC): $(SRCS)

@@ -1,4 +1,4 @@
-module github.com/navaz-alani/vault
+module github.com/navaz-alani/gringotts
 
 go 1.15
 
