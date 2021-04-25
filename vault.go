@@ -16,6 +16,9 @@ const (
 	AES_128 encType = 2
 )
 
+// AES block size = 16 bytes
+const AES_BS int64 = 16
+
 // Vault defines the interface for interacting with an encrypted store of files.
 type Vault interface {
 	AddFile(name string) error
@@ -79,7 +82,7 @@ func processKey(enc encType, key []byte) []byte {
 
 func (v *AESVault) encryptedFileName(srcFile string) string {
 	hash := sha256.Sum256([]byte(srcFile))
-	return v.dirName + "/" + base64.StdEncoding.EncodeToString(hash[:])
+	return v.dirName + "/" + base64.URLEncoding.EncodeToString(hash[:])
 }
 
 func (v *AESVault) lookupFile(name string) (int, *AESVaultEntry) {

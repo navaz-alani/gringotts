@@ -54,7 +54,24 @@ specified, then ONLY the create command will be executed.
 
 --remove <filename>
   Removes an encrypted file from the vault.
-  Be careful when using this as the file, once deleted, is not recoverable.`
+  Be careful when using this as the file, once deleted, is not recoverable.
+
+The following are vault management commands used for cleanup and integrity
+testing of the ciphertexts.
+
+--cleanup
+  Performs a cleanup of the selected vault.
+  This involves removing all ciphertext files which do not correspond to a file
+  entry in the vault (since they have no chance of being decrypted anymore).
+
+--prune-entries
+  Performs a cleanup of the vault's internal data.
+  This involves removing all file entries which do not have corresponding
+  ciphertext files in the vault.
+
+--check-integrity
+  Checks if any ciphertexts have been tampered with.
+`
 
 func usage() {
 	fmt.Print(usageMsg)

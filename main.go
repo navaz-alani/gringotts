@@ -7,14 +7,20 @@ import (
 )
 
 var (
-	help    *bool   = flag.Bool("help", false, "display help menu")
-	create  *string = flag.String("create", "", "name of the vault to create")
-	vault   *string = flag.String("vault", "", "name of the vault to operate on")
+	help *bool = flag.Bool("help", false, "display help menu")
+
+	create *string = flag.String("create", "", "name of the vault to create")
+	vault  *string = flag.String("vault", "", "name of the vault to operate on")
+
 	list    *bool   = flag.Bool("list", false, "display list of files in the vault")
 	encrypt *string = flag.String("encrypt", "", "name of file to encrypt & add to the vault")
 	decrypt *string = flag.String("decrypt", "", "name of file to decrypt from the vault")
 	output  *string = flag.String("output", "", "name of file to save decrypted file as")
 	remove  *string = flag.String("remove", "", "name of file to delete from the vault")
+
+	cleanup   *bool = flag.Bool("cleanup", false, "remove unlinked ciphertexts")
+	prune     *bool = flag.Bool("prune-entries", false, "remove lone file entries")
+	integrity *bool = flag.Bool("integrity", false, "check ciphertexts for tampering")
 )
 
 func exitOnErr(ctxStr string, err error, code int) {
@@ -99,6 +105,64 @@ func main() {
 		if err := v.RemoveFile(*remove); err != nil {
 			exitOnErr("remove error", err, 1)
 		}
+		return
+	}
+
+	// handle vault management commands
+
+	// command = cleanup vault directory
+	if *cleanup {
+		deleted, err := v.Cleanup()
+		if err != nil {
+			exitOnErr("cleanup error", err, 1)
+		}
+		if len(deleted) == 0 {
+			return
+		}
+		fmt.Printf("Deleted ciphertexts:\n")
+		for _, f := range deleted {
+			fmt.Printf("%s\n", f)
+		}
+		return
+	}
+	// command = cleanup file entries
+	if *prune {
+		pruned, err := v.PruneEntries()
+		if err != nil {
+			exitOnErr("prune fail: %s", err, 1)
+		}
+		if len(pruned) == 0 {
+			return
+		}
+		fmt.Printf("Pruned entries:\n")
+		for _, f := range pruned {
+			fmt.Printf("%s\n", f)
+		}
+		return
+	}
+	// command = run ciphertext integrity check
+	if *integrity {
+		result := v.IntegrityTest()
+		totalTests := len(result.Failed) + len(result.Inconclusive) + len(result.Passed)
+		// print test summary
+		fmt.Printf("Summary:\n")
+		fmt.Printf("%d/%d tests passed\n", len(result.Passed), totalTests)
+		fmt.Printf("%d/%d tests failed\n", len(result.Failed), totalTests)
+		fmt.Printf("%d/%d tests inconclusive\n", len(result.Inconclusive), totalTests)
+		// print detailed results
+		printCategory := func(cat string, files []string) {
+			if len(files) == 0 {
+				return
+			}
+			fmt.Printf("%s ciphertexts (correspond to):\n", cat)
+			for _, f := range files {
+				fmt.Printf("%s\n", f)
+			}
+		}
+		fmt.Printf("\nDetailed Results:\n")
+		printCategory("Passed", result.Passed)
+		printCategory("Failed", result.Failed)
+		printCategory("Inconclusive", result.Inconclusive)
 		return
 	}
 
